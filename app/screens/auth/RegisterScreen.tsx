@@ -17,12 +17,11 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleRegister = async () => {
-    if (!email || !password || !confirmPassword || !fullName) {
+    if (!email || !password || !confirmPassword) {
       Alert.alert("Lỗi", "Vui lòng điền đầy đủ thông tin");
       return;
     }
@@ -33,23 +32,27 @@ export default function RegisterScreen() {
     }
 
     setIsLoading(true);
-
     try {
       const result = await signUp({
         email,
         password,
-        fullName,
-        gender: "other", // Giá trị mặc định
-        birthDate: new Date().toISOString(), // Giá trị mặc định
-        height: 170, // Giá trị mặc định
-        weight: 70, // Giá trị mặc định
-        goalWeight: 70, // Giá trị mặc định
-        goalType: "maintain", // Giá trị mặc định
+        fullName: "Tên đầy đủ",
+        gender: "male",
+        birthDate: "1990-01-01",
+        height: 170,
+        weight: 60,
+        goalWeight: 70,
+        goalType: "maintain",
       });
 
       if (result.success) {
-        Alert.alert("Thành công", "Đăng ký thành công", [
-          { text: "OK", onPress: () => router.push("/login") },
+        Alert.alert("Đăng ký thành công", "Bạn đã đăng ký thành công!", [
+          {
+            text: "OK",
+            onPress: () => {
+              router.push("/home");
+            },
+          },
         ]);
       } else {
         Alert.alert("Lỗi", "Đăng ký thất bại. Vui lòng thử lại.");
@@ -82,17 +85,6 @@ export default function RegisterScreen() {
         </View>
 
         <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Họ và tên</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Nhập họ và tên của bạn"
-              value={fullName}
-              onChangeText={setFullName}
-              autoCapitalize="words"
-            />
-          </View>
-
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Email</Text>
             <TextInput

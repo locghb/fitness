@@ -30,14 +30,14 @@ export function OnboardingScreen({ navigation }: OnboardingProps) {
 
   const handleNext = () => {
     if (currentIndex === onboardingData.length - 1) {
-      router.push('/login');
+      router.push("/login");
     } else {
       scrollToIndex(currentIndex + 1);
     }
   };
 
   const handleSkip = () => {
-    router.push('/login');
+    router.push("/login");
   };
 
   const renderItem = ({ item }: { item: typeof onboardingData[0] }) => {

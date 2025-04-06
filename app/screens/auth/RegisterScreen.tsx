@@ -7,18 +7,59 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { signUp } from "../../../lib/auth";
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleRegister = () => {
-    // TODO: Xử lý đăng ký
-    console.log("Register:", { email, password, confirmPassword });
+  const handleRegister = async () => {
+    if (!email || !password || !confirmPassword || !fullName) {
+      Alert.alert("Lỗi", "Vui lòng điền đầy đủ thông tin");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert("Lỗi", "Mật khẩu không khớp");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const result = await signUp({
+        email,
+        password,
+        fullName,
+        gender: "other", // Giá trị mặc định
+        birthDate: new Date().toISOString(), // Giá trị mặc định
+        height: 170, // Giá trị mặc định
+        weight: 70, // Giá trị mặc định
+        goalWeight: 70, // Giá trị mặc định
+        goalType: "maintain", // Giá trị mặc định
+      });
+
+      if (result.success) {
+        Alert.alert("Thành công", "Đăng ký thành công", [
+          { text: "OK", onPress: () => router.push("/login") },
+        ]);
+      } else {
+        Alert.alert("Lỗi", "Đăng ký thất bại. Vui lòng thử lại.");
+      }
+    } catch (error) {
+      console.error("Error registering:", error);
+      Alert.alert("Lỗi", "Đã xảy ra lỗi. Vui lòng thử lại.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleBack = () => {
@@ -41,6 +82,17 @@ export default function RegisterScreen() {
         </View>
 
         <View style={styles.form}>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Họ và tên</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Nhập họ và tên của bạn"
+              value={fullName}
+              onChangeText={setFullName}
+              autoCapitalize="words"
+            />
+          </View>
+
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Email</Text>
             <TextInput
@@ -75,8 +127,16 @@ export default function RegisterScreen() {
             />
           </View>
 
-          <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-            <Text style={styles.registerButtonText}>Đăng ký</Text>
+          <TouchableOpacity 
+            style={styles.registerButton} 
+            onPress={handleRegister}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.registerButtonText}>Đăng ký</Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>

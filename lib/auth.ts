@@ -89,3 +89,14 @@ export async function resetPassword(email: string) {
     return { success: false, error }
   }
 }
+
+export async function getCurrentUser() {
+  try {
+    const { data, error } = await supabase.auth.getUser()
+    if (error) throw error
+    return { success: true, user: data.user }
+  } catch (error) {
+    console.error('Error getting current user:', error)
+    return { success: false, error }
+  }
+}

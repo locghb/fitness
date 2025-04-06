@@ -8,29 +8,47 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { resetPassword } from "../../../lib/auth";
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleResetPassword = () => {
+  const handleResetPassword = async () => {
     if (!email) {
       Alert.alert("Lỗi", "Vui lòng nhập email của bạn");
       return;
     }
-    // TODO: Implement password reset logic
-    Alert.alert(
-      "Thành công",
-      "Link đặt lại mật khẩu đã được gửi đến email của bạn",
-      [
-        {
-          text: "OK",
-          onPress: () => router.back(),
-        },
-      ]
-    );
+
+    setIsLoading(true);
+
+    try {
+      const result = await resetPassword(email);
+
+      if (result.success) {
+        Alert.alert(
+          "Thành công",
+          "Link đặt lại mật khẩu đã được gửi đến email của bạn",
+          [
+            {
+              text: "OK",
+              onPress: () => router.back(),
+            },
+          ]
+        );
+      } else {
+        Alert.alert("Lỗi", "Không thể gửi link đặt lại mật khẩu. Vui lòng thử lại.");
+      }
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      Alert.alert("Lỗi", "Đã xảy ra lỗi. Vui lòng thử lại.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleBack = () => {
@@ -70,8 +88,13 @@ export default function ForgotPasswordScreen() {
           <TouchableOpacity
             style={styles.resetButton}
             onPress={handleResetPassword}
+            disabled={isLoading}
           >
-            <Text style={styles.resetButtonText}>Đặt lại mật khẩu</Text>
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.resetButtonText}>Đặt lại mật khẩu</Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>
